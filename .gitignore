@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+*.log
+src/*.egg-info/
+storage/*.db
+storage/raw/*
+storage/pages/*
+storage/artifacts/*
+!storage/raw/.gitkeep
+!storage/pages/.gitkeep
+!storage/artifacts/.gitkeep

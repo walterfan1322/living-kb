@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Living KB Control Room</title>
+    <link rel="stylesheet" href="/static/app.css" />
+  </head>
+  <body>
+    <div class="orb orb-a"></div>
+    <div class="orb orb-b"></div>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Living KB</p>
+          <h1>Control Room</h1>
+          <p class="lede">
+            Ingest raw material, run background jobs, review generated knowledge pages, and query the system from one place.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button id="refresh-all" class="button primary">Refresh Workspace</button>
+          <a class="button ghost" href="/docs" target="_blank" rel="noreferrer">Open API Docs</a>
+        </div>
+      </header>
+
+      <section class="metrics" id="metrics"></section>
+
+      <section class="grid">
+        <article class="panel panel-wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Ingest</p>
+              <h2>New Raw Source</h2>
+            </div>
+          </div>
+          <div class="ingest-grid">
+            <form id="ingest-form" class="stack ingest-card">
+              <h3>Paste Text</h3>
+              <label>
+                <span>Title</span>
+                <input name="title" placeholder="Karpathy architecture notes" required />
+              </label>
+              <label>
+                <span>Source type</span>
+                <input name="source_type" value="manual" />
+              </label>
+              <label>
+                <span>URI</span>
+                <input name="uri" placeholder="Optional source URL" />
+              </label>
+              <label>
+                <span>Content</span>
+                <textarea name="content" rows="7" placeholder="Paste raw material here..." required></textarea>
+              </label>
+              <button type="submit" class="button primary">Ingest Text</button>
+            </form>
+
+            <form id="ingest-url-form" class="stack ingest-card">
+              <h3>Fetch URL</h3>
+              <label>
+                <span>URL</span>
+                <input name="url" type="url" placeholder="https://example.com/article" required />
+              </label>
+              <button type="submit" class="button primary">Ingest URL</button>
+            </form>
+
+            <form id="ingest-file-form" class="stack ingest-card">
+              <h3>Upload File</h3>
+              <label>
+                <span>Source type</span>
+                <input name="source_type" value="file" />
+              </label>
+              <label>
+                <span>Choose file</span>
+                <input name="file" type="file" required />
+              </label>
+              <button type="submit" class="button primary">Upload File</button>
+            </form>
+          </div>
+          <div class="row top-gap">
+            <button type="button" id="queue-health" class="button ghost">Queue Health Check</button>
+            <button type="button" id="run-all-jobs" class="button ghost">Run All Queued Jobs</button>
+          </div>
+          <div id="ingest-result" class="notice hidden"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Queue</p>
+              <h2>Recent Raw Documents</h2>
+            </div>
+          </div>
+          <div id="raw-list" class="list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">RAW Viewer</p>
+              <h2>Source Preview</h2>
+            </div>
+          </div>
+          <div id="raw-viewer-empty" class="empty">Select a raw document to inspect its source preview.</div>
+          <div id="raw-viewer" class="hidden">
+            <div id="raw-viewer-meta" class="meta"></div>
+            <div id="raw-viewer-uri" class="detail-link"></div>
+            <div id="raw-viewer-paths" class="detail-link"></div>
+            <div id="raw-viewer-linked-page" class="detail-link"></div>
+            <pre id="raw-viewer-content" class="response-box viewer-box"></pre>
+            <div class="actions">
+              <button id="raw-viewer-queue" class="button ghost small">Queue Compile</button>
+              <button id="raw-viewer-compile" class="button primary small">Compile Now</button>
+              <button id="raw-viewer-open-page" class="button ghost small">Open Linked Page</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Jobs</p>
+              <h2>Recent Runs</h2>
+            </div>
+            <div class="stack mini-controls">
+              <select id="job-status-filter">
+                <option value="">All Statuses</option>
+                <option value="queued">Queued</option>
+                <option value="running">Running</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
+              <select id="job-type-filter">
+                <option value="">All Job Types</option>
+                <option value="compile_raw">Compile</option>
+                <option value="health_check">Health Check</option>
+              </select>
+              <button id="run-one-job" class="button ghost small">Run One</button>
+            </div>
+          </div>
+          <div id="job-list" class="list"></div>
+        </article>
+
+        <article class="panel panel-tall">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Review</p>
+              <h2>Human-In-The-Loop Queue</h2>
+            </div>
+            <div class="stack mini-controls">
+              <select id="review-item-filter">
+                <option value="">All Items</option>
+                <option value="page">Pages</option>
+                <option value="finding">Findings</option>
+              </select>
+              <select id="review-severity-filter">
+                <option value="">All Severities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+          </div>
+          <div id="review-list" class="list"></div>
+        </article>
+
+        <article class="panel panel-tall">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Knowledge</p>
+              <h2>Pages</h2>
+            </div>
+          </div>
+          <div id="page-list" class="list"></div>
+        </article>
+
+        <article class="panel panel-wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Page Viewer</p>
+              <h2>Markdown And Revision Diff</h2>
+            </div>
+          </div>
+          <div id="page-viewer-empty" class="empty">Select a page to inspect its current markdown and revision history.</div>
+          <div id="page-viewer" class="viewer hidden">
+            <div class="viewer-grid">
+              <section>
+                <h3 id="viewer-title">Page</h3>
+                <div id="viewer-meta" class="meta"></div>
+                <pre id="viewer-markdown" class="response-box viewer-box"></pre>
+              </section>
+              <section>
+                <h3>Revisions</h3>
+                <div id="viewer-revisions" class="list compact"></div>
+                <h3>Latest Diff</h3>
+                <pre id="viewer-diff" class="response-box viewer-box">No diff yet.</pre>
+              </section>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel panel-wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Trace</p>
+              <h2>Activity And Lineage</h2>
+            </div>
+          </div>
+          <div id="activity-empty" class="empty">Select a page to see lineage, or use this area to review recent system activity.</div>
+          <div id="activity-feed" class="list"></div>
+        </article>
+
+        <article class="panel panel-wide">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Query</p>
+              <h2>Ask The Knowledge Base</h2>
+            </div>
+          </div>
+          <form id="query-form" class="stack">
+            <label>
+              <span>Question</span>
+              <textarea name="question" rows="4" placeholder="What contradictions should I review next?" required></textarea>
+            </label>
+            <button type="submit" class="button primary">Run Query</button>
+          </form>
+          <pre id="query-result" class="response-box">No query yet.</pre>
+        </article>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+  </html>

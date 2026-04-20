@@ -1,0 +1,42 @@
+[project]
+name = "living-kb"
+version = "0.1.0"
+description = "A living knowledge base MVP with ingestion, compilation, query, and health checks."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "alembic>=1.15.2",
+  "beautifulsoup4>=4.12.3",
+  "fastapi>=0.115.0",
+  "httpx>=0.28.1",
+  "openai>=2.0.0",
+  "pgvector>=0.3.6",
+  "psycopg[binary]>=3.2.6",
+  "pydantic-settings>=2.8.1",
+  "pypdf>=5.4.0",
+  "python-multipart>=0.0.20",
+  "sqlalchemy>=2.0.39",
+  "uvicorn[standard]>=0.34.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.5",
+]
+
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[project.scripts]
+living-kb-worker = "living_kb.worker:main"

@@ -1,0 +1,26 @@
+from __future__ import annotations
+
+from sqlalchemy import JSON
+from sqlalchemy.types import TypeDecorator
+
+from pgvector.sqlalchemy import Vector
+
+
+class EmbeddingVector(TypeDecorator):
+    impl = JSON
+    cache_ok = True
+
+    def __init__(self, dimensions: int) -> None:
+        self.dimensions = dimensions
+        super().__init__()
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(Vector(self.dimensions))
+        return dialect.type_descriptor(JSON())
+
+    def process_bind_param(self, value, dialect):
+        return value
+
+    def process_result_value(self, value, dialect):
+        return value
